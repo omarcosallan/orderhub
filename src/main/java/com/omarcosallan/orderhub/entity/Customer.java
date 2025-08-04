@@ -13,7 +13,7 @@ import org.hibernate.validator.constraints.br.CNPJ;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_costumers")
+@Table(name = "tb_customers")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
