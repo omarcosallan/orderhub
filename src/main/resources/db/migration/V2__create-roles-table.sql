@@ -1,0 +1,4 @@
+CREATE TABLE tb_roles (
+    id BIGSERIAL PRIMARY KEY,
+    role VARCHAR(50) NOT NULL
+);
