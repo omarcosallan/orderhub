@@ -1,7 +1,11 @@
 package com.omarcosallan.orderhub.service;
 
+import com.omarcosallan.orderhub.dto.RegisterDTO;
+import com.omarcosallan.orderhub.dto.UserResponseDTO;
 import com.omarcosallan.orderhub.entity.Role;
+import com.omarcosallan.orderhub.entity.RoleType;
 import com.omarcosallan.orderhub.entity.User;
+import com.omarcosallan.orderhub.mapper.UserMapper;
 import com.omarcosallan.orderhub.repository.RoleRepository;
 import com.omarcosallan.orderhub.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,13 +27,22 @@ public class UserService {
     }
 
     @Transactional
-    public User save(User user) {
+    public UserResponseDTO save(RegisterDTO dto) {
+        User user = UserMapper.toEntity(dto);
+
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
-        Set<Role> roles = roleRepository.findByRoleIn(user.getRoles().stream().map(Role::getRole).collect(Collectors.toSet()));
-        user.setRoles(roles);
+        if (dto.roles().isEmpty()) {
+            Role role = roleRepository.findByRole(RoleType.CLIENT).get();
+            user.setRoles(Set.of(role));
+        } else {
+            Set<Role> roles = roleRepository.findByRoleIn(dto.roles().stream().map(RoleType::valueOf).collect(Collectors.toSet()));
+            user.setRoles(roles);
+        }
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        return UserMapper.toDTO(user);
     }
 }

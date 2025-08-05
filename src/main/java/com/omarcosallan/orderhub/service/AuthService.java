@@ -1,5 +1,6 @@
 package com.omarcosallan.orderhub.service;
 
+import com.omarcosallan.orderhub.dto.LoginDTO;
 import com.omarcosallan.orderhub.entity.User;
 import com.omarcosallan.orderhub.security.JWTUtil;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,8 +17,8 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
-    public String login(String email, String password) {
-        UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(email, password);
+    public String login(LoginDTO dto) {
+        UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
         Authentication auth = authenticationManager.authenticate(usernamePassword);
         return JWTUtil.generateToken(((User) auth.getPrincipal()).getEmail());
     }
