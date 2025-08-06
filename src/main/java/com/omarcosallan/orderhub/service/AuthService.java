@@ -12,14 +12,16 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
+    private final JWTUtil jwtUtil;
 
-    public AuthService(AuthenticationManager authenticationManager) {
+    public AuthService(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     public String login(LoginDTO dto) {
         UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
         Authentication auth = authenticationManager.authenticate(usernamePassword);
-        return JWTUtil.generateToken(((User) auth.getPrincipal()).getEmail());
+        return jwtUtil.generateToken(((User) auth.getPrincipal()).getEmail());
     }
 }
