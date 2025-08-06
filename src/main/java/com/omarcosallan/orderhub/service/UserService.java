@@ -22,10 +22,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
     }
 
     @Transactional
@@ -34,7 +36,7 @@ public class UserService {
             throw new AlreadyExistsException("O e-mail " + dto.email() + " já está em uso.");
         }
 
-        User user = UserMapper.toEntity(dto);
+        User user = userMapper.toEntity(dto);
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -54,6 +56,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        return UserMapper.toDTO(user);
+        return userMapper.toDTO(user);
     }
 }

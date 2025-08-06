@@ -3,18 +3,15 @@ package com.omarcosallan.orderhub.mapper;
 import com.omarcosallan.orderhub.dto.RegisterDTO;
 import com.omarcosallan.orderhub.dto.UserResponseDTO;
 import com.omarcosallan.orderhub.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public static User toEntity(RegisterDTO dto) {
-        return new User(null,
-                dto.name(),
-                dto.email(),
-                dto.password(),
-                null);
-    }
+    @Mapping(target = "roles", ignore = true)
+    User toEntity(RegisterDTO dto);
 
-    public static UserResponseDTO toDTO(User user) {
-        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getRoles(), user.isEnabled());
-    }
+    @Mapping(target = "active", source = "enabled")
+    UserResponseDTO toDTO(User user);
 }
