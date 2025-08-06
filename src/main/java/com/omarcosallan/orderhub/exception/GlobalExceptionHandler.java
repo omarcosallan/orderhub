@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ProblemDetail> handleMethodArgumentNotValid(BadCredentialsException e) {
+    public ResponseEntity<ProblemDetail> handleBadCredentialsException(BadCredentialsException e) {
         return createProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciais inválidas.", "E-mail ou senha incorretos. Verifique seus dados e tente novamente.", null);
     }
 
