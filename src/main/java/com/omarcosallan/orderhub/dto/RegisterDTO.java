@@ -5,5 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.Set;
 
-public record RegisterDTO(@NotBlank String name, @Email String email, @NotBlank String password, Set<String> roles) {
+public record RegisterDTO(@NotBlank(message = "Nome é obrigatório") String name,
+                          @Email(message = "Email deve ter formato válido") String email,
+                          @NotBlank(message = "Senha é obrigatória") String password, Set<String> roles) {
 }
