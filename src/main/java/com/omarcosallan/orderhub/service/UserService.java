@@ -5,6 +5,8 @@ import com.omarcosallan.orderhub.dto.UserResponseDTO;
 import com.omarcosallan.orderhub.entity.Role;
 import com.omarcosallan.orderhub.entity.RoleType;
 import com.omarcosallan.orderhub.entity.User;
+import com.omarcosallan.orderhub.exception.AlreadyExistsException;
+import com.omarcosallan.orderhub.exception.BadRequestException;
 import com.omarcosallan.orderhub.mapper.UserMapper;
 import com.omarcosallan.orderhub.repository.RoleRepository;
 import com.omarcosallan.orderhub.repository.UserRepository;
@@ -28,17 +30,26 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO save(RegisterDTO dto) {
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new AlreadyExistsException("O e-mail " + dto.email() + " já está em uso.");
+        }
+
         User user = UserMapper.toEntity(dto);
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
-        if (dto.roles().isEmpty()) {
-            Role role = roleRepository.findByRole(RoleType.CLIENT).get();
-            user.setRoles(Set.of(role));
-        } else {
-            Set<Role> roles = roleRepository.findByRoleIn(dto.roles().stream().map(RoleType::valueOf).collect(Collectors.toSet()));
-            user.setRoles(roles);
+        try {
+            if (dto.roles().isEmpty()) {
+                Role role = roleRepository.findByRole(RoleType.CLIENT)
+                        .orElseThrow(() -> new BadRequestException("A role informada é inválida."));
+                user.setRoles(Set.of(role));
+            } else {
+                Set<Role> roles = roleRepository.findByRoleIn(dto.roles().stream().map(RoleType::valueOf).collect(Collectors.toSet()));
+                user.setRoles(roles);
+            }
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Uma ou mais roles informadas são inválidas.");
         }
 
         userRepository.save(user);

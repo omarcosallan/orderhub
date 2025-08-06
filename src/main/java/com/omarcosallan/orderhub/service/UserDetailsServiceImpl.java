@@ -1,5 +1,6 @@
 package com.omarcosallan.orderhub.service;
 
+import com.omarcosallan.orderhub.exception.ResourceNotFoundException;
 import com.omarcosallan.orderhub.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +19,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário com e-mail '" + email + "' não encontrado"));
     }
 }
