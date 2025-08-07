@@ -32,6 +32,11 @@ public class GlobalExceptionHandler {
         return createProblemDetail(HttpStatus.CONFLICT, "Recurso já existe.", e.getMessage(), null);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleUnauthorizedException(UnauthorizedException e) {
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Autorização necessária.", e.getMessage(), null);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(DataIntegrityViolationException e) {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Dado informado já existe.", "Verifique se já existe um registro semelhante ou se todos os campos obrigatórios foram preenchidos corretamente.", null);
