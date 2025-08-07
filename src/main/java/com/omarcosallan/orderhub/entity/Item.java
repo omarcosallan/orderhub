@@ -52,6 +52,9 @@ public class Item {
     @PrePersist
     @PreUpdate
     protected void onCreate() {
+        if (description == null) {
+            description = "";
+        }
         if (slug == null) {
             slug = Normalizer.normalize(name, Normalizer.Form.NFD).replaceAll("\\p{M}", "").replaceAll("[^\\w\\s]", "").trim().replaceAll("\\s+", "-").toLowerCase();
         }
