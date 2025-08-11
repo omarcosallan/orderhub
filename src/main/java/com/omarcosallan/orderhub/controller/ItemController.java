@@ -2,7 +2,6 @@ package com.omarcosallan.orderhub.controller;
 
 import com.omarcosallan.orderhub.dto.ItemDTO;
 import com.omarcosallan.orderhub.dto.ItemResponseDTO;
-import com.omarcosallan.orderhub.entity.Item;
 import com.omarcosallan.orderhub.service.ItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

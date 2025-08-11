@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(DataIntegrityViolationException e) {
-        return createProblemDetail(HttpStatus.BAD_REQUEST, "Dado informado já existe.", "Verifique se já existe um registro semelhante ou se todos os campos obrigatórios foram preenchidos corretamente.", null);
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Dados inválidos.", "Verifique se já existe um registro semelhante ou se todos os campos obrigatórios foram preenchidos corretamente.", null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

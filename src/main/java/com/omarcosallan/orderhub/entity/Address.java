@@ -3,8 +3,10 @@ package com.omarcosallan.orderhub.entity;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 @Embeddable
+@Data
 public class Address {
 
     @NotBlank(message = "Rua é obrigatória")
