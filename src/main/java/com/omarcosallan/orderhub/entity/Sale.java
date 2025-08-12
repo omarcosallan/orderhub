@@ -30,16 +30,16 @@ public class Sale {
     private SaleStatus status;
 
     @NotNull(message = "Vendedor é obrigatório")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
     @NotNull(message = "Cliente é obrigatório")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL)
     private Set<SaleItem> items = new HashSet<>();
 
     @DecimalMin(value = "0.01", message = "Valor total deve ser maior que zero")
@@ -52,16 +52,4 @@ public class Sale {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @PrePersist
-    @PreUpdate
-    protected void onCreate() {
-        if (status == null) {
-            status = SaleStatus.PENDING_PAYMENT;
-        }
-        totalAmount = items.stream()
-                .map(SaleItem::getSubTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
 }

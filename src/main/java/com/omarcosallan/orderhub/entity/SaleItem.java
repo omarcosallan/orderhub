@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Entity
 @Table(name = "tb_sale_item")
@@ -22,6 +21,7 @@ import java.math.RoundingMode;
 public class SaleItem {
 
     @EmbeddedId
+    @JsonIgnore
     private SaleItemPK id = new SaleItemPK();
 
     @NotNull
@@ -42,18 +42,13 @@ public class SaleItem {
     @DecimalMax(value = "100.0", inclusive = true, message = "Desconto não pode exceder 100%")
     private Double discount;
 
-    @PrePersist
-    @PreUpdate
-    protected void calculateSubTotal() {
-        BigDecimal total = unitPrice.multiply(BigDecimal.valueOf(quantity));
-
-        if (discount != null && discount > 0) {
-            BigDecimal discountRate = BigDecimal.valueOf(discount).divide(BigDecimal.valueOf(100));
-            BigDecimal discountAmount = total.multiply(discountRate);
-            total = total.subtract(discountAmount);
-        }
-
-        subTotal = total.setScale(2, RoundingMode.HALF_UP);
+    public SaleItem(Sale sale, Item item, Integer quantity, Double discount, BigDecimal subTotal) {
+        setSale(sale);
+        setItem(item);
+        this.quantity = quantity;
+        this.unitPrice = getItem().getPrice();
+        this.discount = discount;
+        this.subTotal = subTotal;
     }
 
     @JsonIgnore
@@ -65,6 +60,7 @@ public class SaleItem {
         id.setSale(sale);
     }
 
+    @JsonIgnore
     public Item getItem() {
         return id.getItem();
     }
