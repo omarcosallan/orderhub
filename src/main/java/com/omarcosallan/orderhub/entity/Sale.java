@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +31,7 @@ public class Sale {
     @NotNull(message = "Vendedor é obrigatório")
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
-    private User seller;
+    private Seller seller;
 
     @NotNull(message = "Cliente é obrigatório")
     @ManyToOne

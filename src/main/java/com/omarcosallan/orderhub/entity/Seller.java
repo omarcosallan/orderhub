@@ -1,23 +1,21 @@
 package com.omarcosallan.orderhub.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.validator.constraints.br.CNPJ;
+import org.hibernate.validator.constraints.br.CPF;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "tb_customers")
+@Table(name = "tb_sellers")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Customer {
+public class Seller {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,16 +23,19 @@ public class Customer {
 
     @NotBlank(message = "Nome é obrigatório")
     @Column(nullable = false)
-    private String companyName;
+    private String name;
 
-    @CNPJ(message = "CNPJ deve ter formato válido")
+    @CPF(message = "CPF deve ter formato válido")
     @Column(nullable = false, unique = true)
-    private String cnpj;
+    private String cpf;
 
-    @Email(message = "Email deve ter formato válido")
-    @NotBlank(message = "Email é obrigatório")
-    @Column(nullable = false, unique = true)
-    private String email;
+    @CreationTimestamp
+    @Column(nullable = false)
+    private LocalDate hiringDate;
+
+    private LocalDate birthDate;
+
+    private Double commissionRate;
 
     @NotBlank(message = "Telefone é obrigatório")
     @Column(nullable = false)
@@ -46,10 +47,4 @@ public class Customer {
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false, unique = true)
     private User owner;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
 }
