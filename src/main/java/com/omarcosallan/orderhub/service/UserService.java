@@ -43,7 +43,7 @@ public class UserService {
 
         try {
             if (dto.roles().isEmpty()) {
-                Role role = roleRepository.findByRole(RoleType.CLIENT)
+                Role role = roleRepository.findByRole(RoleType.SELLER)
                         .orElseThrow(() -> new BadRequestException("A role informada é inválida."));
                 user.setRoles(Set.of(role));
             } else {

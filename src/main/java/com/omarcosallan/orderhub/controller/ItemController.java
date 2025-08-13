@@ -6,6 +6,7 @@ import com.omarcosallan.orderhub.service.ItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,19 +27,15 @@ public class ItemController {
     }
 
     @GetMapping("/{slug}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER', 'CUSTOMER')")
     public ResponseEntity<ItemResponseDTO> item(@PathVariable String slug) {
         return ResponseEntity.ok(itemService.findBySlug(slug));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public ResponseEntity<ItemResponseDTO> create(@Valid @RequestBody ItemDTO dto) {
         ItemResponseDTO item = itemService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(item);
-    }
-
-    @DeleteMapping("/{slug}")
-    public ResponseEntity<Void> delete(@PathVariable String slug) {
-        itemService.delete(slug);
-        return ResponseEntity.ok().build();
     }
 }

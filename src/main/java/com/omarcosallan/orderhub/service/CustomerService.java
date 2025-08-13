@@ -3,7 +3,9 @@ package com.omarcosallan.orderhub.service;
 import com.omarcosallan.orderhub.dto.CustomerDTO;
 import com.omarcosallan.orderhub.dto.CustomerResponseDTO;
 import com.omarcosallan.orderhub.entity.Customer;
+import com.omarcosallan.orderhub.entity.User;
 import com.omarcosallan.orderhub.exception.AlreadyExistsException;
+import com.omarcosallan.orderhub.exception.BadRequestException;
 import com.omarcosallan.orderhub.exception.ResourceNotFoundException;
 import com.omarcosallan.orderhub.mapper.CustomerMapper;
 import com.omarcosallan.orderhub.repository.CustomerRepository;
@@ -17,10 +19,12 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final AuthService authService;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper, AuthService authService) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
+        this.authService = authService;
     }
 
     @Transactional(readOnly = true)
@@ -37,15 +41,21 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponseDTO save(CustomerDTO dto) {
+        if (customerRepository.existsByEmail(dto.email())) {
+            throw new AlreadyExistsException("O cliente de e-mail " + dto.email() + " já existe.");
+        }
+        if (customerRepository.existsByCnpj(dto.cnpj())) {
+            throw new AlreadyExistsException("O cliente de CNPJ " + dto.cnpj() + " já existe.");
+        }
+
         Customer customer = customerMapper.toEntity(dto);
-
-        if (customerRepository.existsByEmail(customer.getEmail())) {
-            throw new AlreadyExistsException("O cliente de e-mail " + customer.getEmail() + " já existe.");
+        if (customer.getOwner() == null) {
+            User owner = authService.authenticated();
+            if (customerRepository.existsByOwner(owner)) {
+                throw new BadRequestException("Este usuário '" + owner.getEmail() + "' já está associado a um Cliente.");
+            }
+            customer.setOwner(owner);
         }
-        if (customerRepository.existsByCnpj(customer.getCnpj())) {
-            throw new AlreadyExistsException("O cliente de CNPJ " + customer.getCnpj() + " já existe.");
-        }
-
         customerRepository.save(customer);
 
         return customerMapper.toDTO(customer);
@@ -76,5 +86,12 @@ public class CustomerService {
         customerRepository.save(existingCustomer);
 
         return customerMapper.toDTO(existingCustomer);
+    }
+
+    public boolean isOwner(Long id) {
+        User authenticatedUser = authService.authenticated();
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
+        return customer.getOwner().getId().equals(authenticatedUser.getId());
     }
 }

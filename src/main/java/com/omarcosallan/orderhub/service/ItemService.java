@@ -55,11 +55,4 @@ public class ItemService {
 
         return itemMapper.toDTO(item);
     }
-
-    @Transactional
-    public void delete(String slug) {
-        Item item = itemRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado com slug: " + slug));
-        itemRepository.delete(item);
-    }
 }
