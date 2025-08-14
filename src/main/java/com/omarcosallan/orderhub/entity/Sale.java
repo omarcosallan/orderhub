@@ -38,7 +38,7 @@ public class Sale {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SaleItem> items = new HashSet<>();
 
     @DecimalMin(value = "0.01", message = "Valor total deve ser maior que zero")
