@@ -9,6 +9,7 @@ import com.omarcosallan.orderhub.exception.BadRequestException;
 import com.omarcosallan.orderhub.exception.ResourceNotFoundException;
 import com.omarcosallan.orderhub.mapper.SellerMapper;
 import com.omarcosallan.orderhub.repository.SellerRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,13 +18,11 @@ import java.util.List;
 public class SellerService {
 
     private final SellerRepository sellerRepository;
-    private final AuthService authService;
     private final UserService userService;
     private final SellerMapper sellerMapper;
 
-    public SellerService(SellerRepository sellerRepository, AuthService authService, UserService userService, SellerMapper sellerMapper) {
+    public SellerService(SellerRepository sellerRepository, UserService userService, SellerMapper sellerMapper) {
         this.sellerRepository = sellerRepository;
-        this.authService = authService;
         this.userService = userService;
         this.sellerMapper = sellerMapper;
     }
@@ -44,7 +43,7 @@ public class SellerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vendedor não encontrado com e-mail: " + email));
     }
 
-    public SellerResponseDTO save(SellerDTO dto) {
+    public SellerResponseDTO save(Authentication authentication, SellerDTO dto) {
         if (sellerRepository.existsByCpf(dto.cpf())) {
             throw new AlreadyExistsException("O vendedor de CPF " + dto.cpf() + " já existe.");
         }
@@ -53,7 +52,7 @@ public class SellerService {
         if (dto.ownerId() != null) {
             owner = userService.findById(dto.ownerId());
         } else {
-            owner = authService.authenticated();
+            owner = userService.findByEmail(authentication.getName());
         }
 
         if (sellerRepository.existsByOwner(owner)) {
@@ -88,10 +87,10 @@ public class SellerService {
         return sellerMapper.toDTO(existingSeller);
     }
 
-    public boolean isOwner(Long id) {
-        User authenticatedUser = authService.authenticated();
+    public boolean isOwner(Authentication authentication, Long id) {
+        String authenticatedUserEmail = authentication.getName();
         Seller seller = sellerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendedor não encontrado com id: " + id));
-        return seller.getOwner().getId().equals(authenticatedUser.getId());
+        return seller.getOwner().getEmail().equals(authenticatedUserEmail);
     }
 }

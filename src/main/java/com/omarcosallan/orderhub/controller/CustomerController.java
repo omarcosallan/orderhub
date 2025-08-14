@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,12 +34,12 @@ public class CustomerController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
-    public ResponseEntity<CustomerResponseDTO> create(@Valid @RequestBody CustomerDTO customer) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.save(customer));
+    public ResponseEntity<CustomerResponseDTO> create(Authentication authentication, @Valid @RequestBody CustomerDTO customer) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.save(authentication, customer));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('CUSTOMER') and @customerService.isOwner(#id))")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('CUSTOMER') and @customerService.isOwner(authentication, #id))")
     public ResponseEntity<CustomerResponseDTO> update(@PathVariable Long id, @Valid @RequestBody CustomerDTO customer) {
         return ResponseEntity.ok(customerService.update(id, customer));
     }

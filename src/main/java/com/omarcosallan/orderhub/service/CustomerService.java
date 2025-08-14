@@ -9,6 +9,7 @@ import com.omarcosallan.orderhub.exception.BadRequestException;
 import com.omarcosallan.orderhub.exception.ResourceNotFoundException;
 import com.omarcosallan.orderhub.mapper.CustomerMapper;
 import com.omarcosallan.orderhub.repository.CustomerRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +19,11 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final AuthService authService;
     private final UserService userService;
     private final CustomerMapper customerMapper;
 
-    public CustomerService(CustomerRepository customerRepository, AuthService authService, UserService userService, CustomerMapper customerMapper) {
+    public CustomerService(CustomerRepository customerRepository, UserService userService, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
-        this.authService = authService;
         this.userService = userService;
         this.customerMapper = customerMapper;
     }
@@ -42,7 +41,7 @@ public class CustomerService {
     }
 
     @Transactional
-    public CustomerResponseDTO save(CustomerDTO dto) {
+    public CustomerResponseDTO save(Authentication authentication, CustomerDTO dto) {
         if (customerRepository.existsByEmail(dto.email())) {
             throw new AlreadyExistsException("O cliente de e-mail " + dto.email() + " já existe.");
         }
@@ -54,7 +53,7 @@ public class CustomerService {
         if (dto.ownerId() != null) {
             owner = userService.findById(dto.ownerId());
         } else {
-            owner = authService.authenticated();
+            owner = userService.findByEmail(authentication.getName());
         }
 
         if (customerRepository.existsByOwner(owner)) {
@@ -96,10 +95,10 @@ public class CustomerService {
         return customerMapper.toDTO(existingCustomer);
     }
 
-    public boolean isOwner(Long id) {
-        User authenticatedUser = authService.authenticated();
+    public boolean isOwner(Authentication authentication, Long id) {
+        String authenticatedUserEmail = authentication.getName();
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
-        return customer.getOwner().getId().equals(authenticatedUser.getId());
+        return customer.getOwner().getEmail().equals(authenticatedUserEmail);
     }
 }

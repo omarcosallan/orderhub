@@ -36,6 +36,12 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
     }
 
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com e-mail: " + email));
+    }
+
     @Transactional
     public UserResponseDTO save(RegisterDTO dto) {
         if (userRepository.existsByEmail(dto.email())) {
