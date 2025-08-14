@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 public interface SellerMapper {
 
     Seller toEntity(SellerDTO dto);
+    Seller toEntity(SellerResponseDTO dto);
     SellerResponseDTO toDTO(Seller seller);
     Address toEntity(AddressDTO dto);
     AddressDTO toDTO(Address address);

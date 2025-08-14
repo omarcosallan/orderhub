@@ -38,6 +38,12 @@ public class SellerService {
         return sellerMapper.toDTO(seller);
     }
 
+
+    public Seller findByOwnerEmail(String email) {
+        return sellerRepository.findByOwnerEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Vendedor não encontrado com e-mail: " + email));
+    }
+
     public SellerResponseDTO save(SellerDTO dto) {
         if (sellerRepository.existsByCpf(dto.cpf())) {
             throw new AlreadyExistsException("O vendedor de CPF " + dto.cpf() + " já existe.");
