@@ -11,5 +11,6 @@ public record CustomerDTO(@NotBlank(message = "Nome é obrigatório") String com
                           @Email(message = "Email deve ter formato válido")
                           @NotBlank(message = "Email é obrigatório") String email,
                           @NotBlank(message = "Telefone é obrigatório") String phone,
+                          Long ownerId,
                           @Valid @NotNull AddressDTO address) {
 }

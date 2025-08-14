@@ -18,13 +18,15 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final CustomerMapper customerMapper;
     private final AuthService authService;
+    private final UserService userService;
+    private final CustomerMapper customerMapper;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper, AuthService authService) {
+    public CustomerService(CustomerRepository customerRepository, AuthService authService, UserService userService, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
-        this.customerMapper = customerMapper;
         this.authService = authService;
+        this.userService = userService;
+        this.customerMapper = customerMapper;
     }
 
     @Transactional(readOnly = true)
@@ -48,14 +50,20 @@ public class CustomerService {
             throw new AlreadyExistsException("O cliente de CNPJ " + dto.cnpj() + " já existe.");
         }
 
-        Customer customer = customerMapper.toEntity(dto);
-        if (customer.getOwner() == null) {
-            User owner = authService.authenticated();
-            if (customerRepository.existsByOwner(owner)) {
-                throw new BadRequestException("Este usuário '" + owner.getEmail() + "' já está associado a um Cliente.");
-            }
-            customer.setOwner(owner);
+        User owner;
+        if (dto.ownerId() != null) {
+            owner = userService.findById(dto.ownerId());
+        } else {
+            owner = authService.authenticated();
         }
+
+        if (customerRepository.existsByOwner(owner)) {
+            throw new BadRequestException("Este usuário '" + owner.getEmail() + "' já está associado a um Cliente.");
+        }
+
+        Customer customer = customerMapper.toEntity(dto);
+        customer.setOwner(owner);
+
         customerRepository.save(customer);
 
         return customerMapper.toDTO(customer);

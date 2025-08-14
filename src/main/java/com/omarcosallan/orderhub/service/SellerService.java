@@ -18,11 +18,13 @@ public class SellerService {
 
     private final SellerRepository sellerRepository;
     private final AuthService authService;
+    private final UserService userService;
     private final SellerMapper sellerMapper;
 
-    public SellerService(SellerRepository sellerRepository, AuthService authService, SellerMapper sellerMapper) {
+    public SellerService(SellerRepository sellerRepository, AuthService authService, UserService userService, SellerMapper sellerMapper) {
         this.sellerRepository = sellerRepository;
         this.authService = authService;
+        this.userService = userService;
         this.sellerMapper = sellerMapper;
     }
 
@@ -41,15 +43,19 @@ public class SellerService {
             throw new AlreadyExistsException("O vendedor de CPF " + dto.cpf() + " já existe.");
         }
 
-        Seller seller = sellerMapper.toEntity(dto);
-
-        if (seller.getOwner() == null) {
-            User owner = authService.authenticated();
-            if (sellerRepository.existsByOwner(owner)) {
-                throw new BadRequestException("Este usuário '" + owner.getEmail() + "' já está associado a um vendedor.");
-            }
-            seller.setOwner(owner);
+        User owner;
+        if (dto.ownerId() != null) {
+            owner = userService.findById(dto.ownerId());
+        } else {
+            owner = authService.authenticated();
         }
+
+        if (sellerRepository.existsByOwner(owner)) {
+            throw new BadRequestException("Este usuário '" + owner.getEmail() + "' já está associado a um Vendedor.");
+        }
+
+        Seller seller = sellerMapper.toEntity(dto);
+        seller.setOwner(owner);
 
         sellerRepository.save(seller);
 

@@ -7,6 +7,7 @@ import com.omarcosallan.orderhub.entity.RoleType;
 import com.omarcosallan.orderhub.entity.User;
 import com.omarcosallan.orderhub.exception.AlreadyExistsException;
 import com.omarcosallan.orderhub.exception.BadRequestException;
+import com.omarcosallan.orderhub.exception.ResourceNotFoundException;
 import com.omarcosallan.orderhub.mapper.UserMapper;
 import com.omarcosallan.orderhub.repository.RoleRepository;
 import com.omarcosallan.orderhub.repository.UserRepository;
@@ -28,6 +29,11 @@ public class UserService {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
+    }
+
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
     }
 
     @Transactional
