@@ -33,11 +33,6 @@ public class GlobalExceptionHandler {
         return createProblemDetail(HttpStatus.CONFLICT, "Recurso já existe.", e.getMessage(), null);
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ProblemDetail> handleUnauthorizedException(UnauthorizedException e) {
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Autorização necessária.", e.getMessage(), null);
-    }
-
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(DataIntegrityViolationException e) {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Dados inválidos.", "Verifique se já existe um registro semelhante ou se todos os campos obrigatórios foram preenchidos corretamente.", null);
@@ -51,14 +46,14 @@ public class GlobalExceptionHandler {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Dados inválidos.", "Um ou mais campos estão preenchidos incorretamente. Verifique os dados informados e tente novamente.", Map.of("errors", errors));
     }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+        return createProblemDetail(HttpStatus.FORBIDDEN, "Acesso negado.", "Você não tem permissão para acessar este recurso.", null);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ProblemDetail> handleBadCredentialsException(BadCredentialsException e) {
         return createProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciais inválidas.", "E-mail ou senha incorretos. Verifique seus dados e tente novamente.", null);
-    }
-
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ProblemDetail> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Acesso negado.", "Você não tem permissão para acessar este recurso.", null);
     }
 
     @ExceptionHandler(Exception.class)
