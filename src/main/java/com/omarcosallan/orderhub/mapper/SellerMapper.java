@@ -3,7 +3,6 @@ package com.omarcosallan.orderhub.mapper;
 import com.omarcosallan.orderhub.dto.*;
 import com.omarcosallan.orderhub.entity.Address;
 import com.omarcosallan.orderhub.entity.Seller;
-import com.omarcosallan.orderhub.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,9 +11,11 @@ public interface SellerMapper {
 
     Seller toEntity(SellerDTO dto);
     Seller toEntity(SellerResponseDTO dto);
+
+    @Mapping(source = "owner.name", target = "ownerName")
+    @Mapping(source = "owner.email", target = "ownerEmail")
     SellerResponseDTO toDTO(Seller seller);
+
     Address toEntity(AddressDTO dto);
     AddressDTO toDTO(Address address);
-    @Mapping(target = "active", source = "enabled")
-    OwnerResponseDTO toDTO(User owner);
 }
